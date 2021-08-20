@@ -151,6 +151,8 @@ if (!AudioWorkletHasBrokenModuleImplementation && (typeof AudioWorkletProcessor 
         processAudio(buffer, parameters) {}
         process(inputs, outputs, parameters) {
             if (this.ok) {
+                // BEGIN DESCRIPT CHANGE
+                // vvvvvvvvvvvvvvvvvvvvv
                 if (inputs[0].length > 1) {
                     this.Superpowered.bufferToWASM(this.inputBuffer, inputs);
                 } else if (inputs[0].length === 1) {
@@ -169,6 +171,8 @@ if (!AudioWorkletHasBrokenModuleImplementation && (typeof AudioWorkletProcessor 
                     // srubin[06/14/2021]: added this to support mono outputs
                     this.Superpowered.monoBufferToJs(this.outputBuffer, outputs);
                 }
+                // ^^^^^^^^^^^^^^^^^^^^^
+                //  END DESCRIPT CHANGE
             }
             return true;
         }
@@ -183,7 +187,11 @@ if (!AudioWorkletHasBrokenModuleImplementation && (typeof AudioWorkletProcessor 
             this.onMessageFromAudioScope = oma;
             this.onReady();
         }
+        // BEGIN DESCRIPT CHANGE
+        // vvvvvvvvvvvvvvvvvvvvv
         // onMessageFromAudioScope = null;
+        // ^^^^^^^^^^^^^^^^^^^^^
+        //  END DESCRIPT CHANGE
         onReady() {}
         onMessageFromMainScope(message) {}
         sendMessageToMainScope(message) { if (!this.loader.onmessage({ data: message })) this.onMessageFromAudioScope(message); }
@@ -193,8 +201,12 @@ if (!AudioWorkletHasBrokenModuleImplementation && (typeof AudioWorkletProcessor 
     SuperpoweredWebAudio.AudioWorkletProcessor = SuperpoweredAudioWorkletProcessor;
 }
 
+// BEGIN DESCRIPT CHANGE
+// vvvvvvvvvvvvvvvvvvvvv
 // if (typeof exports === 'object' && typeof module === 'object') module.exports = { SuperpoweredGlue, SuperpoweredWebAudio, SuperpoweredTrackLoader };
 // else if (typeof define === 'function' && define['amd']) define([], function() { return { SuperpoweredGlue, SuperpoweredWebAudio, SuperpoweredTrackLoader }; });
 // else if (typeof exports === 'object') exports["SuperpoweredModule"] = { SuperpoweredGlue, SuperpoweredWebAudio, SuperpoweredTrackLoader };
+// ^^^^^^^^^^^^^^^^^^^^^
+//  END DESCRIPT CHANGE
 
 export { SuperpoweredGlue, SuperpoweredWebAudio, SuperpoweredTrackLoader };
