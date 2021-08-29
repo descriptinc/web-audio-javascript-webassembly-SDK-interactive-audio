@@ -520,6 +520,7 @@ export declare class Superpowered {
     createFloatArray(length: number): SuperpoweredFloat32Buffer;
     bufferToWASM(output: SuperpoweredFloat32Buffer, input: AudioBuffer): void;
     bufferToJS(input: SuperpoweredFloat32Buffer, output: AudioBuffer): void;
+    createViewFromType(type: number, pointer: SuperpoweredMemoryPointer, length: number): SuperpoweredFloat32Buffer;
 
     ThreeBandEQ: ProcessorConstructable1<ThreeBandEQ>;
     Bitcrusher: ProcessorConstructable1<Bitcrusher>;
