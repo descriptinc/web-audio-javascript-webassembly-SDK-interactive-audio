@@ -197,4 +197,17 @@ if (!AudioWorkletHasBrokenModuleImplementation && (typeof AudioWorkletProcessor 
 // else if (typeof define === 'function' && define['amd']) define([], function() { return { SuperpoweredGlue, SuperpoweredWebAudio, SuperpoweredTrackLoader }; });
 // else if (typeof exports === 'object') exports["SuperpoweredModule"] = { SuperpoweredGlue, SuperpoweredWebAudio, SuperpoweredTrackLoader };
 
-export { SuperpoweredGlue, SuperpoweredWebAudio, SuperpoweredTrackLoader };
+const SuperpoweredSampleType = {
+    Uint8: 1,
+    Int8: 2,
+    Uint16: 3,
+    Int16: 4,
+    Uint32: 5,
+    Int32: 6,
+    BigUint64: 7,
+    BigInt64: 8,
+    Float32: 9,
+    Float64: 10,
+}
+
+export { SuperpoweredGlue, SuperpoweredWebAudio, SuperpoweredTrackLoader, SuperpoweredSampleType };
