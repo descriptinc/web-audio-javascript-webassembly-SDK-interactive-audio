@@ -520,6 +520,7 @@ export declare class Superpowered {
     createFloatArray(length: number): SuperpoweredFloat32Buffer;
     bufferToWASM(output: SuperpoweredFloat32Buffer, input: AudioBuffer): void;
     bufferToJS(input: SuperpoweredFloat32Buffer, output: AudioBuffer): void;
+    createViewFromType(type: number, pointer: SuperpoweredMemoryPointer, length: number): any;
 
     ThreeBandEQ: ProcessorConstructable1<ThreeBandEQ>;
     Bitcrusher: ProcessorConstructable1<Bitcrusher>;
@@ -542,4 +543,17 @@ export declare interface SuperpoweredMemoryPointer {}
 export declare interface SuperpoweredFloat32Buffer {
     array: Float32Array;
     pointer: SuperpoweredMemoryPointer;
+}
+
+export declare const enum SuperpoweredSampleType {
+    Uint8 = 1,
+    Int8 = 2,
+    Uint16 = 3,
+    Int16 = 4,
+    Uint32 = 5,
+    Int32 = 6,
+    BigUint64 = 7,
+    BigInt64 = 8,
+    Float32 = 9,
+    Float64 = 10,
 }
