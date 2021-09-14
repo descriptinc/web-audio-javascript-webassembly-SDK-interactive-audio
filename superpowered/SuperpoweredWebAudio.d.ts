@@ -11,6 +11,7 @@ export declare namespace SuperpoweredWebAudio {
         // Superpowered-specific
         Superpowered: Superpowered;
         onMessageFromMainScope(message: any): void;
+        sendMessageToMainScope(message: any): void;
         processAudio(
             inputBuffer: SuperpoweredFloat32Buffer,
             outputBuffer: SuperpoweredFloat32Buffer,
