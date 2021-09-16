@@ -20,6 +20,7 @@ export declare namespace SuperpoweredWebAudio {
         ): void;
 
         // built-in
+        readonly samplerate: number;
         readonly port: MessagePort;
         process(
             inputs: Float32Array[][],
