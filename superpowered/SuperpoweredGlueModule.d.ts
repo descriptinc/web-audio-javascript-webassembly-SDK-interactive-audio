@@ -1,6 +1,12 @@
-import {Superpowered, SuperpoweredFloat32Buffer} from "./Superpowered";
+import { Superpowered } from "./Superpowered";
 
 export declare class SuperpoweredGlue {
-  constructor();
-  static fetch: (url: string) => Promise<Superpowered>;
+    constructor();
+    static fetch: (url: string) => Promise<Superpowered>;
+    loadFromArrayBuffer(
+        wasmCode: BufferSource,
+        afterWASMLoaded?: {
+            afterWASMLoaded: () => void;
+        },
+    ): Promise<void>;
 }
