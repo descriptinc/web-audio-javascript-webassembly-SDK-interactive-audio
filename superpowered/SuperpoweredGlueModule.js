@@ -57,7 +57,12 @@ class SuperpoweredGlue {
         this.__exportsToWasm__.__createClassConstant__ = this.createClassConstant.bind(this);
         this.__exportsToWasm__.__createConstant__ = this.createConstant.bind(this);
         this.__exportsToWasm__.__runjs__ = function(pointer) {
-            return eval(this.toString(pointer));
+            // srubin[09/17/2021]
+            // self is not defined when running in node.js; this code is coming from the WASM
+            // and we can't easily modify the WASM, so instead, rewrite the code here.
+            let str = this.toString(pointer);
+            str = str.replace('(self &&', "(typeof self === 'object' &&");
+            return eval(str);
         }.bind(this);
 
         this.__exportsToWasm__.abs = function(value) { return Math.abs(value); }
