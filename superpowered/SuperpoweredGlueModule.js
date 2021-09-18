@@ -1,3 +1,41 @@
+// srubin[09/17/2021] - adding this code here instead of using javascript's eval (which we do not allow in our prod app)
+const licenseRegex = /^if \(typeof\(fetch\) === typeof\(Function\)\) fetch\('https:\/\/superpowered\.com\/license\/(.+)\/wasm\.txt'\).then\(function\(response\) \{ if \(response\.status == 418\) setInterval\(function\(\) \{ alert\('Superpowered License Error'\); \}, 10000\); \}\);$/
+function checkLicense(str) {
+    const match = str.match(licenseRegex);
+    if (!match) {
+        return false;
+    }
+    if (typeof(fetch) === typeof(Function)) {
+        fetch(`https://superpowered.com/license/${match[1]}/wasm.txt`).then(
+          (response) => {
+              if (response.status === 418) {
+                  // this is a pretty aggressive/annoying license error, and it'd be a big
+                  // problem if our users ever see this.
+                  // However, I'm leaving it as is because I don't want to change the code
+                  // that's being executed from the WASM dispatch (for contractual reasons).
+                  setInterval(() => alert('Superpowered License Error'), 10000);
+              }
+          },
+        );
+    }
+
+    return true;
+}
+
+const featureCheckRegex = /^if \(typeof\(fetch\) === typeof\(Function\)\) fetch\('https:\/\/superpowered\.com\/license\/(.+)\/features_v1\.php\?i=(.+)'\).then\(function\(response\) \{ \}\);$/;
+function checkFeature(str) {
+    const match = str.match(featureCheckRegex);
+    if (!match) {
+        return false;
+    }
+    const license = match[1];
+    const i = match[2];
+    if (typeof(fetch) === typeof(Function)) {
+        fetch(`https://superpowered.com/license/${s}/features_v1.php?i=${i}`).then(function(response) { });
+    }
+    return true;
+}
+
 class SuperpoweredGlue {
     niceSize(bytes) {
         if (bytes == 0) return '0 byte';
@@ -57,7 +95,35 @@ class SuperpoweredGlue {
         this.__exportsToWasm__.__createClassConstant__ = this.createClassConstant.bind(this);
         this.__exportsToWasm__.__createConstant__ = this.createConstant.bind(this);
         this.__exportsToWasm__.__runjs__ = function(pointer) {
-            return eval(this.toString(pointer));
+            // srubin[09/17/2021]
+            // (1) self is not defined when running in node.js this code is coming from the WASM and we can't easily modify the WASM
+            // (2) we don't want to allow eval
+            const str = this.toString(pointer);
+
+            if (str === '(SuperpoweredGlue && SuperpoweredGlue.__uint_max__sp__) ? SuperpoweredGlue.__uint_max__sp__ : ((self && self.__uint_max__sp__) ? self.__uint_max__sp__ : 0)') {
+                return (SuperpoweredGlue && SuperpoweredGlue.__uint_max__sp__) ? SuperpoweredGlue.__uint_max__sp__ : ((typeof self === 'object' && self.__uint_max__sp__) ? self.__uint_max__sp__ : 0);
+            }
+
+            const maxChannelsStr = 'this.__maxChannels__ = '
+            if (str.startsWith(maxChannelsStr)) {
+                try {
+                    const maxChannels = str.slice(maxChannelsStr.length);
+                    this.__maxChannels__ = parseInt(maxChannels, 10);
+                } catch (err) {
+                    // NOP
+                }
+                return;
+            }
+
+            if (checkLicense(str)) {
+                return;
+            }
+
+            if (checkFeature(str)) {
+                return;
+            }
+
+            throw new Error(`Refusing to eval: ${str}` + str.startsWith(licenseCheckStart) + str.endsWith(licenseCheckEnd));
         }.bind(this);
 
         this.__exportsToWasm__.abs = function(value) { return Math.abs(value); }
