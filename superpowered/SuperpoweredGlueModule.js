@@ -46,7 +46,9 @@ class SuperpoweredGlue {
     }
 
     createFloatArray(length) {
-        return this.createViewFromType(9, this.malloc(length * 4), length);
+        const view = this.createViewFromType(9, this.malloc(length * 4), length);
+        view.array.fill(0);
+        return view;
     }
 
     static async fetch(url) {
