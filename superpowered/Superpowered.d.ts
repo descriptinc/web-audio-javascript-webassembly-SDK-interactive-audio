@@ -487,6 +487,7 @@ export declare class Superpowered {
     }>): void;
 
     wasmCode: any;
+    wasmModule: WebAssembly.Module | undefined;
     __maxChannels__: number;
 
     createFloatArray(length: number): SuperpoweredFloat32Buffer;

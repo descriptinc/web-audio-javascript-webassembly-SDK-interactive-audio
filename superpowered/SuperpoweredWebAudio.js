@@ -135,7 +135,20 @@ if (!AudioWorkletHasBrokenModuleImplementation && (typeof AudioWorkletProcessor 
             this.ok = false;
             this.samplerate = options.processorOptions.samplerate;
             this.Superpowered = new SuperpoweredGlue();
-            this.Superpowered.loadFromArrayBuffer(options.processorOptions.wasmCode, this);
+            if (options.processorOptions.wasmModule) {
+                try {
+                    this.Superpowered.loadFromModule(options.processorOptions.wasmModule, this);
+                    return;
+                } catch (err) {
+                    console.error(err);
+                    // fallback on wasmCode
+                }
+            }
+            if (options.processorOptions.wasmCode) {
+                this.Superpowered.loadFromArrayBuffer(options.processorOptions.wasmCode, this);
+                return;
+            }
+            throw new Error('SuperpoweredAudioWorkletProcessor requires wasmCode or wasmModule');
         }
         afterWASMLoaded() {
             this.Superpowered.Initialize();
