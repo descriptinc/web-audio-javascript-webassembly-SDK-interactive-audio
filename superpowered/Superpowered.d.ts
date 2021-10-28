@@ -473,34 +473,6 @@ declare class Spatializer {
     ) => boolean;
 }
 
-/**
- * Constructor interface for effect with 0 arguments
- */
-declare interface ProcessorConstructable0<T> {
-    new(): T;
-}
-
-/**
- * Constructor interface for effect with 1 argument
- */
-declare interface ProcessorConstructable1<T> {
-    new(samplerate: number): T;
-}
-
-/**
- * Constructor interface for effect with 2 arguments
- */
-declare interface ProcessorConstructable2<T> {
-    new(samplerate: number, maximumSamplerate: number): T;
-}
-
-/**
- * Constructor interface for effect with 4 arguments
- */
-declare interface ProcessorConstructable4<T> {
-    new(maximumDelayMs: number, maximumSamplerate: number, maximumFrames: number, samplerate: number): T;
-}
-
 export declare class Superpowered {
     Initialize(options: {
         licenseKey: string;
@@ -515,6 +487,7 @@ export declare class Superpowered {
     }>): void;
 
     wasmCode: any;
+    wasmModule: WebAssembly.Module | undefined;
     __maxChannels__: number;
 
     createFloatArray(length: number): SuperpoweredFloat32Buffer;
@@ -522,20 +495,20 @@ export declare class Superpowered {
     bufferToJS(input: SuperpoweredFloat32Buffer, output: AudioBuffer): void;
     createViewFromType(type: number, pointer: SuperpoweredMemoryPointer, length: number): any;
 
-    ThreeBandEQ: ProcessorConstructable1<ThreeBandEQ>;
-    Bitcrusher: ProcessorConstructable1<Bitcrusher>;
-    Echo: ProcessorConstructable1<Echo>;
-    Delay: ProcessorConstructable4<Delay>;
-    Flanger: ProcessorConstructable1<Flanger>;
-    Gate: ProcessorConstructable1<Gate>;
-    Roll: ProcessorConstructable2<Roll>;
-    Reverb: ProcessorConstructable2<Reverb>;
-    Whoosh: ProcessorConstructable1<Whoosh>;
-    Compressor: ProcessorConstructable1<Compressor>;
-    Limiter: ProcessorConstructable1<Limiter>;
-    Clipper: ProcessorConstructable0<Clipper>;
-    GuitarDistortion: ProcessorConstructable1<GuitarDistortion>;
-    Spatializer: ProcessorConstructable1<Spatializer>;
+    ThreeBandEQ: typeof ThreeBandEQ;
+    Bitcrusher: typeof Bitcrusher;
+    Echo: typeof Echo;
+    Delay: typeof Delay;
+    Flanger: typeof Flanger;
+    Gate: typeof Gate;
+    Roll: typeof Roll;
+    Reverb: typeof Reverb;
+    Whoosh: typeof Whoosh;
+    Compressor: typeof Compressor;
+    Limiter: typeof Limiter;
+    Clipper: typeof Clipper;
+    GuitarDistortion: typeof GuitarDistortion;
+    Spatializer: typeof Spatializer;
 }
 
 export declare interface SuperpoweredMemoryPointer {}

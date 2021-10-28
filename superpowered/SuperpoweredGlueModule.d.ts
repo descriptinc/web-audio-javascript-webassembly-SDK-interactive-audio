@@ -9,4 +9,16 @@ export declare class SuperpoweredGlue {
             afterWASMLoaded: () => void;
         },
     ): Promise<void>;
+    loadFromModule(
+        wasmSuperpoweredModule: WebAssembly.Module,
+        afterWASMLoaded?: {
+            afterWASMLoaded: () => void;
+        },
+    ): void;
+    loadFromInstance(
+        wasmSuperpoweredInstance: WebAssembly.Instance,
+        afterWASMLoaded?: {
+            afterWASMLoaded: () => void;
+        },
+    ): void;
 }

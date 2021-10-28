@@ -389,53 +389,66 @@ class SuperpoweredGlue {
         await WebAssembly.instantiate(wasmCode, {
             wasi_snapshot_preview1: this.wasi,
             env: this.__exportsToWasm__
-        }).then(_module => {
-            this.wasmInstance = _module.instance;
-            this.wasmInstance.exports._initialize();
-
-            this.__functions__ = this.wasmInstance.exports;
-            this.linearMemory = this.wasmInstance.exports.memory.buffer;
-            this.__memorygrowpointer__ = this.__functions__.__malloc__(16);
-            this.__memorygrowview__ = new Uint8Array(this.linearMemory, this.__memorygrowpointer__, 16);
-            this.__functionsWithNamespace__ = {};
-
-            let outputBuffer = this.__functions__.__malloc__(1024);
-            let stringview = new Uint8Array(this.linearMemory, this.__functions__.__malloc__(1024), 1024);
-            for (let f in this.__functions__) {
-                if (f != '__demangle__') {
-                    let length = this.__functions__.__demangle__(this.toWASMString(f, stringview), outputBuffer);
-                    if (length > 0) {
-                        let name = this.toString(outputBuffer, length);
-                        let par = name.indexOf('(');
-                        if (par > 0) name = name.substring(0, par);
-
-                        let namespace = name.lastIndexOf('::');
-                        if (namespace > 0) {
-                            namespace = name.lastIndexOf('::', namespace - 1);
-                            if (namespace > 0) name = name.substr(namespace + 2);
-                        }
-
-                        // class members have namespaces removed from this point, but functions not
-                        let split = name.split('::', 2);
-                        if (split.length == 2) {
-                            if (!this.__functionsWithNamespace__[split[0]]) this.__functionsWithNamespace__[split[0]] = {}
-                            this.__functionsWithNamespace__[split[0]][split[1]] = this.__functions__[f];
-                        }
-
-                        this[name] = this.__functions__[f];
-                    } else this[f] = this.__functions__[f];
-                }
-            }
-            this.free(outputBuffer);
-            this.free(stringview.byteOffset);
-
-            this.__functions__.__initialize__();
-            delete this.__functionsWithNamespace__;
-            this.logMemory();
-            this.__classUnderConstruction__ = null;
-
-            if (afterWASMLoaded != null) afterWASMLoaded.afterWASMLoaded();
+        }).then(({ module, instance }) => {
+            this.wasmModule = module;
+            this.loadFromInstance(instance, afterWASMLoaded);
         });
+    }
+
+    loadFromModule(superpoweredWasmModule, afterWASMLoaded = null) {
+        const instance = new WebAssembly.Instance(superpoweredWasmModule, {
+            wasi_snapshot_preview1: this.wasi,
+            env: this.__exportsToWasm__
+        });
+        this.loadFromInstance(instance, afterWASMLoaded);
+    }
+
+    loadFromInstance(superpoweredWasmInstance, afterWASMLoaded = null) {
+        this.wasmInstance = superpoweredWasmInstance;
+        this.wasmInstance.exports._initialize();
+
+        this.__functions__ = this.wasmInstance.exports;
+        this.linearMemory = this.wasmInstance.exports.memory.buffer;
+        this.__memorygrowpointer__ = this.__functions__.__malloc__(16);
+        this.__memorygrowview__ = new Uint8Array(this.linearMemory, this.__memorygrowpointer__, 16);
+        this.__functionsWithNamespace__ = {};
+
+        let outputBuffer = this.__functions__.__malloc__(1024);
+        let stringview = new Uint8Array(this.linearMemory, this.__functions__.__malloc__(1024), 1024);
+        for (let f in this.__functions__) {
+            if (f != '__demangle__') {
+                let length = this.__functions__.__demangle__(this.toWASMString(f, stringview), outputBuffer);
+                if (length > 0) {
+                    let name = this.toString(outputBuffer, length);
+                    let par = name.indexOf('(');
+                    if (par > 0) name = name.substring(0, par);
+
+                    let namespace = name.lastIndexOf('::');
+                    if (namespace > 0) {
+                        namespace = name.lastIndexOf('::', namespace - 1);
+                        if (namespace > 0) name = name.substr(namespace + 2);
+                    }
+
+                    // class members have namespaces removed from this point, but functions not
+                    let split = name.split('::', 2);
+                    if (split.length == 2) {
+                        if (!this.__functionsWithNamespace__[split[0]]) this.__functionsWithNamespace__[split[0]] = {}
+                        this.__functionsWithNamespace__[split[0]][split[1]] = this.__functions__[f];
+                    }
+
+                    this[name] = this.__functions__[f];
+                } else this[f] = this.__functions__[f];
+            }
+        }
+        this.free(outputBuffer);
+        this.free(stringview.byteOffset);
+
+        this.__functions__.__initialize__();
+        delete this.__functionsWithNamespace__;
+        this.logMemory();
+        this.__classUnderConstruction__ = null;
+
+        if (afterWASMLoaded != null) afterWASMLoaded.afterWASMLoaded();
     }
 
     toString(pointer, strlen = 0) {
