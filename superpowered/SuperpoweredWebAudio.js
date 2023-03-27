@@ -188,15 +188,11 @@ if (!AudioWorkletHasBrokenModuleImplementation && (typeof AudioWorkletProcessor 
 
         // srubin[03/27/2023]: added to fix memory leaks
         destroy() {
-            console.log('!!! clearing onmessage')
             if (this.port && this.port.onmessage) {
                 this.port.onmessage = null;
             }
-            console.log('!!! clearing inputBuffer')
             this.inputBuffer = undefined;
-            console.log('!!! clearing outputBuffer')
             this.outputBuffer = undefined;
-            console.log('!!! clearing Superpowered')
             this.Superpowered = undefined;
         }
     }
