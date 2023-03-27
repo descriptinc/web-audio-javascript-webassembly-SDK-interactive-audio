@@ -185,6 +185,20 @@ if (!AudioWorkletHasBrokenModuleImplementation && (typeof AudioWorkletProcessor 
             }
             return true;
         }
+
+        // srubin[03/27/2023]: added to fix memory leaks
+        destroy() {
+            console.log('!!! clearing onmessage')
+            if (this.port && this.port.onmessage) {
+                this.port.onmessage = null;
+            }
+            console.log('!!! clearing inputBuffer')
+            this.inputBuffer = undefined;
+            console.log('!!! clearing outputBuffer')
+            this.outputBuffer = undefined;
+            console.log('!!! clearing Superpowered')
+            this.Superpowered = undefined;
+        }
     }
     SuperpoweredWebAudio.AudioWorkletProcessor = SuperpoweredAudioWorkletProcessor;
 } else {
@@ -202,6 +216,12 @@ if (!AudioWorkletHasBrokenModuleImplementation && (typeof AudioWorkletProcessor 
         sendMessageToMainScope(message) { if (!this.loader.onmessage({ data: message })) this.onMessageFromAudioScope(message); }
         postMessage(message, transfer = []) { this.onMessageFromMainScope(message); }
         processAudio(buffer, parameters) {}
+        // srubin[03/27/2023]: added to fix memory leaks
+        destroy() {
+            this.loader = undefined;
+            this.Superpowered = undefined;
+            this.onMessageFromAudioScope = undefined;
+        }
     }
     SuperpoweredWebAudio.AudioWorkletProcessor = SuperpoweredAudioWorkletProcessor;
 }

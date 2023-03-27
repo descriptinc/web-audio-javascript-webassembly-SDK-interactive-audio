@@ -27,5 +27,7 @@ export declare namespace SuperpoweredWebAudio {
             outputs: Float32Array[][],
             parameters: Record<string, Float32Array>,
         ): boolean;
+
+        destroy(): void;
     }
 }
