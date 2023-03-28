@@ -130,9 +130,11 @@ if (!AudioWorkletHasBrokenModuleImplementation && (typeof AudioWorkletProcessor 
     class SuperpoweredAudioWorkletProcessor extends AudioWorkletProcessor {
         constructor(options) {
             super();
+            this.debugName = options.processorOptions.debugName;
             SuperpoweredGlue.__uint_max__sp__ = options.processorOptions.maxChannels;
             this.port.onmessage = (event) => { this.onMessageFromMainScope(event.data); };
             this.ok = false;
+            this.destroyed = false;
             this.samplerate = options.processorOptions.samplerate;
             this.Superpowered = new SuperpoweredGlue();
             if (options.processorOptions.wasmModule) {
@@ -163,7 +165,7 @@ if (!AudioWorkletHasBrokenModuleImplementation && (typeof AudioWorkletProcessor 
         sendMessageToMainScope(message) { this.port.postMessage(message); }
         processAudio(buffer, parameters) {}
         process(inputs, outputs, parameters) {
-            if (this.ok) {
+            if (this.ok && !this.destroyed) {
                 if (inputs[0].length > 1) {
                     this.Superpowered.bufferToWASM(this.inputBuffer, inputs);
                 } else if (inputs[0].length === 1) {
@@ -183,7 +185,8 @@ if (!AudioWorkletHasBrokenModuleImplementation && (typeof AudioWorkletProcessor 
                     this.Superpowered.monoBufferToJs(this.outputBuffer, outputs);
                 }
             }
-            return true;
+            // srubin[03/27/2023]: stop processing audio if destroyed
+            return !this.destroyed;
         }
 
         // srubin[03/27/2023]: added to fix memory leaks
@@ -194,6 +197,7 @@ if (!AudioWorkletHasBrokenModuleImplementation && (typeof AudioWorkletProcessor 
             this.inputBuffer = undefined;
             this.outputBuffer = undefined;
             this.Superpowered = undefined;
+            this.destroyed = true;
         }
     }
     SuperpoweredWebAudio.AudioWorkletProcessor = SuperpoweredAudioWorkletProcessor;
